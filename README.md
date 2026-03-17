@@ -4,7 +4,7 @@
 
 ## 개요
 
-- 도메인: lnsmsserver.lunarsystem.co.kr
+- 도메인: lnsms.lunarsystem.co.kr
 - agent.store.eqid 3단계 트리 관리
 - 추가, 삭제, 편집 기능
 - store별 카테고리, 메뉴 편집
