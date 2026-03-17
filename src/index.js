@@ -116,25 +116,31 @@ mongoose.connect(MONGODB_URI, {
     console.warn('[migration] field standardization skipped/failed:', e?.message || e);
   }
   
-  // 기본 관리자 계정 시딩(선택)
-  // - 보안상 하드코딩 비밀번호/로그 출력 금지
-  // - 필요할 때만 환경변수로 비밀번호를 주입해서 생성
-  try {
-    const AdminUser = require('./models/AdminUser');
-
-    const seedUsers = [
-      { username: process.env.ADMIN_SEED_CUBE_USERNAME || 'cube', password: process.env.ADMIN_SEED_CUBE_PASSWORD, role: 'superadmin' },
-      { username: process.env.ADMIN_SEED_ADMIN_USERNAME || 'admin', password: process.env.ADMIN_SEED_ADMIN_PASSWORD, role: 'superadmin' },
-    ].filter((u) => u.password && u.password.trim().length > 0);
-
-    for (const u of seedUsers) {
-      const existing = await AdminUser.findOne({ username: u.username });
-      if (existing) continue;
-      await new AdminUser({ username: u.username, password: u.password, role: u.role }).save();
-      console.log(`✅ 관리자 계정 생성: ${u.username} (password는 로그에 출력하지 않음)`);
-    }
-  } catch (e) {
-    console.warn('[seed] admin user seed skipped/failed:', e?.message || e);
+  // 기본 admin 계정 생성
+  const AdminUser = require('./models/AdminUser');
+  
+  // cube 계정 생성
+  const cubeUser = await AdminUser.findOne({ username: 'cube' });
+  if (!cubeUser) {
+    const newCubeUser = new AdminUser({
+      username: 'cube',
+      password: 'Eldpdj!@34',
+      role: 'superadmin'
+    });
+    await newCubeUser.save();
+    console.log('✅ 기본 관리자 계정 생성: cube / Eldpdj!@34');
+  }
+  
+  // admin 계정 생성
+  const adminUser = await AdminUser.findOne({ username: 'admin' });
+  if (!adminUser) {
+    const newAdminUser = new AdminUser({
+      username: 'admin',
+      password: 'admin',
+      role: 'superadmin'
+    });
+    await newAdminUser.save();
+    console.log('✅ 기본 관리자 계정 생성: admin / admin');
   }
 })
 .catch((err) => {
